@@ -16,13 +16,4 @@ public class PostDto {
 
     private String content;
 
-    public static PostDto createDto(Post post) {
-        return PostDto.builder()
-                .postId(post.getPostId())
-                .title(post.getTitle())
-                .description(post.getDescription())
-                .content(post.getContent())
-                .build();
-    }
-
 }

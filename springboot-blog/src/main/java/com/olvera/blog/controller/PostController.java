@@ -1,12 +1,15 @@
 package com.olvera.blog.controller;
 
 import com.olvera.blog.payload.PostDto;
+import com.olvera.blog.payload.PostResponse;
 import com.olvera.blog.service.PostService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static com.olvera.blog.utils.AppConstants.*;
 
 @RestController
 @RequestMapping("/api/posts")
@@ -24,8 +27,13 @@ public class PostController {
     }
 
     @GetMapping
-    public ResponseEntity<List<PostDto>> getAllPost() {
-        return new ResponseEntity<>(postService.getAllPost(), HttpStatus.OK);
+    public PostResponse getAllPost(
+            @RequestParam(value = "pageNo", defaultValue = DEFAULT_PAGE_NUMBER, required = false) int pageNo,
+            @RequestParam(value = "pageSize", defaultValue = DEFAULT_PAGE_SIZE, required = false) int pageSize,
+            @RequestParam(value = "sortBy", defaultValue = DEFAULT_SORT_BY, required = false) String sortBy,
+            @RequestParam(value = "sortDir", defaultValue = DEFAULT_SORT_DIRECTION, required = false) String sortDir
+    ) {
+        return postService.getAllPost(pageNo, pageSize, sortBy, sortDir);
     }
 
     // get post by id
@@ -36,7 +44,7 @@ public class PostController {
 
     // update post by id rest api
     @PutMapping("/{id}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id")Long id, @RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "id") Long id, @RequestBody PostDto postDto) {
         PostDto postResponse = postService.updatePost(id, postDto);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }

@@ -6,6 +6,7 @@ import com.olvera.blog.payload.PostDto;
 import com.olvera.blog.payload.PostResponse;
 import com.olvera.blog.repository.PostRepository;
 import com.olvera.blog.service.PostService;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,33 +21,23 @@ public class PostServiceImpl implements PostService {
 
     private final PostRepository postRepository;
 
-    public PostServiceImpl(PostRepository postRepository) {
+    private final ModelMapper modelMapper;
+
+    public PostServiceImpl(PostRepository postRepository, ModelMapper modelMapper) {
         this.postRepository = postRepository;
+        this.modelMapper = modelMapper;
     }
 
     @Override
     public PostDto createPost(PostDto postDto) {
 
         // convert DTO to entity
-        Post postCreated = Post.builder()
-                .postId(postDto.getPostId())
-                .title(postDto.getTitle())
-                .description(postDto.getDescription())
-                .content(postDto.getContent())
-                .build();
+        // convert DTO to entity
+        Post post = mapToEntity(postDto);
+        Post newPost = postRepository.save(post);
 
-        postCreated = postRepository.save(postCreated);
-
-        return createDto(postCreated);
-    }
-
-    public static PostDto createDto(Post post) {
-        return PostDto.builder()
-                .postId(post.getPostId())
-                .title(post.getTitle())
-                .description(post.getDescription())
-                .content(post.getContent())
-                .build();
+        // convert entity to DTO
+        return mapToDTO(newPost);
     }
 
     @Override
@@ -63,7 +54,7 @@ public class PostServiceImpl implements PostService {
         // get content from page object
         List<Post> listOfPosts = posts.getContent();
 
-        List<PostDto> content = listOfPosts.stream().map(PostServiceImpl::createDto).collect(Collectors.toList());
+        List<PostDto> content = listOfPosts.stream().map(this::mapToDTO).collect(Collectors.toList());
 
         PostResponse postResponse = new PostResponse();
         postResponse.setContent(content);
@@ -80,7 +71,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostDto getPostById(Long postId) {
         Post post = postRepository.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Post", "id", postId));
-        return createDto(post);
+        return mapToDTO(post);
     }
 
     @Override
@@ -94,7 +85,7 @@ public class PostServiceImpl implements PostService {
 
         Post postUpdated = postRepository.save(post);
 
-        return createDto(postUpdated);
+        return mapToDTO(postUpdated);
     }
 
     @Override
@@ -103,5 +94,15 @@ public class PostServiceImpl implements PostService {
         postRepository.delete(post);
     }
 
+
+    // convert Entity into DTO
+    private PostDto mapToDTO(Post post) {
+        return modelMapper.map(post, PostDto.class);
+    }
+
+    // convert DTO to entity
+    private Post mapToEntity(PostDto postDto) {
+        return modelMapper.map(postDto, Post.class);
+    }
 
 }

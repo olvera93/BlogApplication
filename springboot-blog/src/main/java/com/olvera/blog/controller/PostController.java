@@ -3,11 +3,10 @@ package com.olvera.blog.controller;
 import com.olvera.blog.payload.PostDto;
 import com.olvera.blog.payload.PostResponse;
 import com.olvera.blog.service.PostService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 import static com.olvera.blog.utils.AppConstants.*;
 
@@ -22,7 +21,7 @@ public class PostController {
     }
 
     @PostMapping
-    public ResponseEntity<PostDto> createdPost(@RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> createdPost(@Valid @RequestBody PostDto postDto) {
         return new ResponseEntity<>(postService.createPost(postDto), HttpStatus.CREATED);
     }
 
@@ -44,7 +43,7 @@ public class PostController {
 
     // update post by id rest api
     @PutMapping("/{postId}")
-    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "postId") Long postId, @RequestBody PostDto postDto) {
+    public ResponseEntity<PostDto> updatePost(@PathVariable(name = "postId") Long postId, @Valid @RequestBody PostDto postDto) {
         PostDto postResponse = postService.updatePost(postId, postDto);
         return new ResponseEntity<>(postResponse, HttpStatus.OK);
     }

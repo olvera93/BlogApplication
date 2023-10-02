@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Entity
 @Table(name = "comments")
-@Builder
 public class Comment {
 
     @Id
@@ -19,13 +19,10 @@ public class Comment {
     private Long commentId;
 
     private String name;
-
     private String email;
-
     private String body;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
-
-
 }
